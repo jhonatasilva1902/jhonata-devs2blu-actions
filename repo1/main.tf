@@ -1,7 +1,6 @@
-provider "aws" {
-  region = "us-east-1"  # Escolha a região que preferir
+pprovider "aws" {
+  region = "us-east-1"  # Substitua pela região desejada
 }
-
 
 resource "aws_security_group" "security_group_jhonata" {
   name        = "security-group-jhonata"
@@ -27,6 +26,7 @@ resource "aws_security_group" "security_group_jhonata" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -35,13 +35,11 @@ resource "aws_security_group" "security_group_jhonata" {
   }
 }
 
-
 resource "aws_instance" "jhonata_vm" {
-  ami           = "ami-053b0d53c279acc90"  # AMI do Ubuntu 18.04
-  instance_type = "t2.micro"  # Tipo de instância
+  ami           = "ami-053b0d53c279acc90"  # AMI do Ubuntu 18.04 (substitua pela AMI desejada)
+  instance_type = "t2.micro"  # Tipo de instância (substitua pelo tipo desejado)
 
   vpc_security_group_ids = [aws_security_group.security_group_jhonata.id]
-
 
   user_data = <<-EOF
               #!/bin/bash
@@ -51,12 +49,10 @@ resource "aws_instance" "jhonata_vm" {
               sudo apt-get install -y ansible
               EOF
 
-
-
   tags = {
-    Name = "jhonata_vm"
+    Name        = "jhonata_vm"
     Environment = "dev"
     Application = "backend"
-    Class = "DevOps"    
+    Class       = "DevOps"
   }
 }
