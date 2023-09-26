@@ -1,0 +1,34 @@
+---
+- name: Instalar Docker no Host Remoto
+  hosts: jhonata_vm
+  become: yes
+  tasks:
+    - name: Debug AWS Access Key
+      debug:
+        msg: "AWS Access Key: {{ lookup('env', 'AWS_ACCESS_KEY_ID') }}"
+
+    - name: Instalar pip3
+      apt:
+        name: python3-pip
+        update_cache: yes
+
+    - name: Instalar boto3
+      pip:
+        name: boto3
+
+    - name: Obter informações da instância EC2
+      amazon.aws.ec2_instance_info:
+        region: "us-east-1"  # Adicione a região aqui
+        filters:
+          instance-state-name: running
+          tag:Name: "jhonata_vm"
+      register: ec2_info
+
+    - name: Adicionar subdomínio ao Route 53
+      community.aws.route53:
+        zone: "jhonata.sol.app.br"
+        record: "iii.jhonata.sol.app.br"
+        type: "A"
+        ttl: 7200
+        value: "{{ ec2_info.instances[0].public_ip_address }}"
+        region: "{{ aws_region }}"
