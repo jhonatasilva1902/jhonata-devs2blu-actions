@@ -2,7 +2,7 @@ provider "aws" {
   region = "us-east-1"  # Substitua pela região desejada
 }
 
-resource "aws_security_group" "security_group_jhonata" {
+resource "aws_security_group" "security_group_jhonata_actions" {
   name        = "security-group-jhonata"
   description = "Security Group para SSH, HTTP e porta 8000"
 
@@ -40,7 +40,7 @@ resource "aws_instance" "jhonata_vm_actions" {
   instance_type = "t2.micro"  # Tipo de instância (substitua pelo tipo desejado)
 
 
-  vpc_security_group_ids = [aws_security_group.security_group_jhonata.id]
+  vpc_security_group_ids = [aws_security_group.security_group_jhonata_actions.id]
 
   user_data = <<-EOF
               #!/bin/bash

@@ -54,7 +54,7 @@ jobs:
         run: terraform init
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve -var="create_key=true"
+        run: terraform apply -auto-approve -var="create_key=false"
 
       - name: Wait for instance to be ready
         run: sleep 60  # waits for 60 seconds
