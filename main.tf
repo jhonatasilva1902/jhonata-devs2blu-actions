@@ -48,7 +48,12 @@ resource "aws_instance" "jhonata_vm_actions1" {
               sudo apt-get install -y software-properties-common
               sudo apt-add-repository --yes --update ppa:ansible/ansible
               sudo apt-get install -y ansible
+
+              # Copia a chave SSH para o diretório do usuário
+              echo "${file("~/.ssh/id_rsa.pub")}" >> ~/.ssh/authorized_keys
+              chmod 600 ~/.ssh/authorized_keys
               EOF
+
 
   tags = {
     Name        = "jhonata_vm_actions1"
@@ -57,4 +62,5 @@ resource "aws_instance" "jhonata_vm_actions1" {
     Class       = "DevOps"
     Origem      = "Meu primeiro git actions"
   }
+  key_name      = aws_key_pair.meu_keypair_jhonata.key_name
 }
