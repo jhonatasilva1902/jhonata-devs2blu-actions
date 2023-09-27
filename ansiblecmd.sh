@@ -3,6 +3,15 @@
 #  count      = var.create_key ? 1 : 0gti
 # key_name = var.create_key ? aws_key_pair.meu_keypair_jhonata[0].key_name : null
 #  key_name = aws_key_pair.meu_keypair_jhonata.key_name
+
+    #   copy:
+    #     src: ${file("~/.ssh/id_rsa.pub")}
+    #     dest: /home/ubuntu/.ssh/id_rsa
+    #     owner: ubuntu
+    #     group: ubuntu
+    #     mode: '0600'
+
+
 #ansible -i inventory.ini my_pendrive_vm -m ping -u ubuntu --private-key=./id_rsa
 
 #ansible -i inventory.ini my_pendrive_vm -m shell -a "ls -la" -u ubuntu --private-key=./id_rsa 
