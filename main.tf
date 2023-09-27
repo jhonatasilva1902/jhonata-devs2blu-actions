@@ -63,5 +63,6 @@ resource "aws_instance" "jhonata_vm_actions" {
     Origem      = "Meu primeiro git actions"
   }
   
-  key_name      = aws_key_pair.meu_keypair_jhonata.key_name
+  # Condição para definir key_name com base em uma variável
+  key_name = var.create_key ? aws_key_pair.meu_keypair_jhonata[0].key_name : null
 }
