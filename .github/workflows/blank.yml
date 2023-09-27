@@ -45,7 +45,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
         with:
-          terraform_version: '1.0.0'
+          terraform_wrapper: fase
 
       - name: Qual diretorio estou
         run: pwd && ls -la  && ls -la ~/.ssh
@@ -67,10 +67,13 @@ jobs:
       - name: Install Ansible
         run: pip install ansible
 
+      - name: Set INSTANCE_IP environment variable
+        run: echo "instance_ip=`terraform output -raw instance_ip`" >> $GITHUB_ENV
+
       - name: Create Ansible Inventory
         run: |
-          echo "[aws_instance]" > inventory.ini
-          terraform output -raw instance_ip >> inventory.ini
+          echo "[jhonata_vm_actions]" > inventory.ini
+          echo "${instance_ip}" >> inventory.ini
           echo "" >> inventory.ini 
 
       - name: Run Ansible Playbook
