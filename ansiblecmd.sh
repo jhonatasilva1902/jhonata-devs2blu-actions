@@ -1,5 +1,6 @@
 
 
+#teste
 #ansible -i inventory.ini my_pendrive_vm -m ping -u ubuntu --private-key=./id_rsa
 
 #ansible -i inventory.ini my_pendrive_vm -m shell -a "ls -la" -u ubuntu --private-key=./id_rsa 
