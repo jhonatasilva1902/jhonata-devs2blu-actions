@@ -35,7 +35,7 @@ resource "aws_security_group" "security_group_jhonata" {
   }
 }
 
-resource "aws_instance" "jhonata_vm_actions1" {
+resource "aws_instance" "jhonata_vm_actions" {
   ami           = "ami-053b0d53c279acc90"  # AMI do Ubuntu 18.04 (substitua pela AMI desejada)
   instance_type = "t2.micro"  # Tipo de instância (substitua pelo tipo desejado)
   key_name      = aws_key_pair.meu_keypair_jhonata.key_name
@@ -56,11 +56,12 @@ resource "aws_instance" "jhonata_vm_actions1" {
 
 
   tags = {
-    Name        = "jhonata_vm_actions1"
+    Name        = "jhonata_vm_actions"
     Environment = "dev"
     Application = "backend"
     Class       = "DevOps"
     Origem      = "Meu primeiro git actions"
   }
+  
   key_name      = aws_key_pair.meu_keypair_jhonata.key_name
 }
