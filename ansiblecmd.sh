@@ -1,5 +1,5 @@
 
-# Condição para definir key_name com base em uma variável
+# Condição para definir key_name com base em uma variável tirado
 # key_name = var.create_key ? aws_key_pair.meu_keypair_jhonata[0].key_name : null
 #  key_name = aws_key_pair.meu_keypair_jhonata.key_name
 #ansible -i inventory.ini my_pendrive_vm -m ping -u ubuntu --private-key=./id_rsa
