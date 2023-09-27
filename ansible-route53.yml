@@ -1,6 +1,6 @@
 ---
 - name: Instalar Docker no Host Remoto
-  hosts: jhonata_vm
+  hosts: jhonata_vm_actions
   become: yes
   tasks:
     - name: Debug AWS Access Key
