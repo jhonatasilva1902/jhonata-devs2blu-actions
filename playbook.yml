@@ -28,7 +28,7 @@
     - name: Atualizar lista de pacotes
       apt:
         update_cache: yes
-        register: apt_atualizado
+      register: apt_atualizado
 
     - name: Instalar pacotes necessários
       apt:
@@ -38,7 +38,7 @@
           - curl
           - software-properties-common
         state: present
-        when: apt_atualizado is succeeded
+      when: apt_atualizado is succeeded
 
     - name: Adicionar chave GPG do Docker
       apt_key:
