@@ -15,20 +15,15 @@
 
     - name: Copiar chave SSH privada
       ansible.builtin.copy:
-        content: "{{ secrets.SSH_PRIVATE_KEY }}"
+        content: ~/.ssh/id_rsa
         dest: ~/.ssh/id_rsa
         mode: '0600'
 
     - name: Copiar chave SSH pública
       ansible.builtin.copy:
-        content: "{{ secrets.SSH_PUBLIC_KEY }}"
+        content: ~/.ssh/id_rsa.pub
         dest: ~/.ssh/id_rsa.pub
         mode: '0644'
-
-    - name: Adicionar chave SSH ao known_hosts
-      ansible.builtin.known_hosts:
-        path: ~/.ssh/known_hosts
-        key: "{{ hostvars[inventory_hostname]['ansible_ssh_host'] }}"
 
     - name: Atualizar lista de pacotes
       apt:
