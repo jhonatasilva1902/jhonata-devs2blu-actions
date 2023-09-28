@@ -56,6 +56,10 @@ jobs:
       - name: Terraform Apply
         run: terraform apply -auto-approve -var="create_key=false"
 
+
+      - name: Set INSTANCE_IP environment variable
+        run: echo "instance_ip=`terraform output -raw instance_ip`" >> $GITHUB_ENV
+
       - name: Wait for instance to be ready
         run: sleep 60  # waits for 60 seconds
 
@@ -67,9 +71,6 @@ jobs:
       - name: Install Ansible
         run: pip install ansible
 
-      - name: Set INSTANCE_IP environment variable
-        run: echo "instance_ip=`terraform output -raw instance_ip`" >> $GITHUB_ENV
-
       - name: Create Ansible Inventory
         run: |
           echo "[jhonata_vm_actions]" > inventory.ini
@@ -80,7 +81,6 @@ jobs:
       - name: Setup SSH Keys depois do Ansible
         run: |
           ssh-keyscan ${instance_ip} >> ~/.ssh/known_hosts
-          pwd && ls -la ~/.ssh
           cat ~/.ssh/known_hosts
 
       - name: Run Ansible Playbook
