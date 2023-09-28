@@ -8,9 +8,28 @@
         host: "{{ inventory_hostname }}"
         port: 22
         delay: 60
-        timeout: 60
+        timeout: 120
         state: started
       delegate_to: localhost
+
+    - name: Copiar chave SSH privada
+      ansible.builtin.copy:
+        content: "{{ secrets.SSH_PRIVATE_KEY }}"
+        dest: ~/.ssh/id_rsa
+        mode: '0600'
+
+    - name: Copiar chave SSH pública
+      ansible.builtin.copy:
+        content: "{{ secrets.SSH_PUBLIC_KEY }}"
+        dest: ~/.ssh/id_rsa.pub
+        mode: '0644'
+
+    - name: Adicionar chave SSH ao known_hosts
+      ansible.builtin.lineinfile:
+        line: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+        dest: ~/.ssh/known_hosts
+        create: yes
+
 
     - name: Atualizar lista de pacotes
       apt:
