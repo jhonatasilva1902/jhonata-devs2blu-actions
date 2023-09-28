@@ -2,13 +2,19 @@
 - name: Instalar Docker no Host Remoto
   hosts: jhonata_vm_actions
   become: yes
-  remote_user: ubuntu
-
   tasks:
+    - name: Esperar até que a instância esteja pronta
+      wait_for:
+        host: "{{ inventory_hostname }}"
+        port: 22
+        delay: 60
+        timeout: 600
+        state: started
+      delegate_to: localhost
+
     - name: Atualizar lista de pacotes
       apt:
         update_cache: yes
-      register: apt_atualizado
 
     - name: Instalar pacotes necessários
       apt:
@@ -18,7 +24,6 @@
           - curl
           - software-properties-common
         state: present
-      when: apt_atualizado is succeeded
 
     - name: Adicionar chave GPG do Docker
       apt_key:
@@ -42,18 +47,24 @@
         enabled: yes
 
     - name: Copiar chave SSH para a instância
-      copy:
-        src: ~/.ssh/id_rsa
+      ansible.builtin.copy:
+        content: "{{ secrets.SSH_PRIVATE_KEY }}"  # Obtém a chave SSH privada do GitHub Secrets
         dest: /home/ubuntu/.ssh/id_rsa
         owner: ubuntu
         group: ubuntu
         mode: '0600'
+      register: copy_result
+
+    - name: Verificar se a cópia da chave SSH foi bem-sucedida
+      fail:
+        msg: "Falha ao copiar a chave SSH para a instância"
+      when: copy_result.failed
 
     - name: Clonar repositório Git
       become: yes
       become_user: ubuntu
       git:
-        repo: 'https://github.com/jhonatasilva1902/teste_cicd_001.git'
+        repo: 'git@github.com:jhonatasilva1902/teste_cicd_001.git'
         dest: /home/ubuntu/app
         version: main
         accept_hostkey: yes

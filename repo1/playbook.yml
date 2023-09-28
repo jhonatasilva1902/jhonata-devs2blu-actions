@@ -3,8 +3,28 @@
   hosts: jhonata_vm_actions
   become: yes
   remote_user: ubuntu
-
   tasks:
+    - name: Esperar até que a instância esteja pronta
+      wait_for:
+        host: "{{ inventory_hostname }}"
+        port: 22
+        delay: 60
+        timeout: 120
+        state: started
+      delegate_to: localhost
+
+    - name: Copiar chave SSH privada
+      ansible.builtin.copy:
+        content: ~/.ssh/id_rsa
+        dest: ~/.ssh/id_rsa
+        mode: '0600'
+
+    - name: Copiar chave SSH pública
+      ansible.builtin.copy:
+        content: ~/.ssh/id_rsa.pub
+        dest: ~/.ssh/id_rsa.pub
+        mode: '0644'
+
     - name: Atualizar lista de pacotes
       apt:
         update_cache: yes
@@ -41,19 +61,11 @@
         state: started
         enabled: yes
 
-    - name: Copiar chave SSH para a instância
-      copy:
-        src: ~/.ssh/id_rsa
-        dest: /home/ubuntu/.ssh/id_rsa
-        owner: ubuntu
-        group: ubuntu
-        mode: '0600'
-
     - name: Clonar repositório Git
       become: yes
       become_user: ubuntu
       git:
-        repo: 'https://github.com/jhonatasilva1902/teste_cicd_001.git'
+        repo: 'git@github.com:jhonatasilva1902/teste_cicd_001.git'
         dest: /home/ubuntu/app
         version: main
         accept_hostkey: yes
