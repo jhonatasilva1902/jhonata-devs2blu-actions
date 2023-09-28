@@ -1,0 +1,26 @@
+name: Cleanup Resources
+
+on:
+  workflow_run:
+    workflows: ["jhonata-devs2blu-action"]
+    types:
+      - completed
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      - name: Destroy Resources
+        run: |
+          terraform init
+          terraform destroy -auto-approve -target=aws_instance.jhonata_vm_actions
+          terraform destroy -auto-approve -target=aws_key_pair.meu_keypair_jhonata_actions
+          terraform destroy -auto-approve -target=aws_security_group.security_group_jhonata_actions
+
