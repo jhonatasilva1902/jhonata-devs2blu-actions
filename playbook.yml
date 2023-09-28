@@ -28,6 +28,7 @@
     - name: Atualizar lista de pacotes
       apt:
         update_cache: yes
+        register: apt_atualizado
 
     - name: Instalar pacotes necessários
       apt:
@@ -37,6 +38,7 @@
           - curl
           - software-properties-common
         state: present
+        when: apt_atualizado is succeeded
 
     - name: Adicionar chave GPG do Docker
       apt_key:
@@ -58,15 +60,6 @@
         name: docker
         state: started
         enabled: yes
-
-    - name: Verificar se a chave SSH existe
-      stat:
-        path: /home/ubuntu/.ssh/id_rsa  # Caminho para a chave SSH na instância
-      register: ssh_key_check
-
-    - name: Exibir resultado da verificação
-      debug:
-        var: ssh_key_check.stat.exists
 
     - name: Clonar repositório Git
       become: yes
