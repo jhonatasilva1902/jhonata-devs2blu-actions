@@ -8,7 +8,7 @@
         host: "{{ inventory_hostname }}"
         port: 22
         delay: 60
-        timeout: 60
+        timeout: 600
         state: started
       delegate_to: localhost
 
@@ -46,14 +46,19 @@
         state: started
         enabled: yes
 
-    - name: Verificar se a chave SSH existe
-      stat:
-        path: /home/ubuntu/.ssh/id_rsa  # Caminho para a chave SSH na instância
-      register: ssh_key_check
+    - name: Copiar chave SSH para a instância
+      ansible.builtin.copy:
+        content: "{{ secrets.SSH_PRIVATE_KEY }}"  # Obtém a chave SSH privada do GitHub Secrets
+        dest: /home/ubuntu/.ssh/id_rsa
+        owner: ubuntu
+        group: ubuntu
+        mode: '0600'
+      register: copy_result
 
-    - name: Exibir resultado da verificação
-      debug:
-        var: ssh_key_check.stat.exists
+    - name: Verificar se a cópia da chave SSH foi bem-sucedida
+      fail:
+        msg: "Falha ao copiar a chave SSH para a instância"
+      when: copy_result.failed
 
     - name: Clonar repositório Git
       become: yes
