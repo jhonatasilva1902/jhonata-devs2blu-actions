@@ -74,12 +74,12 @@ jobs:
         run: |
           echo "[jhonata_vm_actions]" > inventory.ini
           echo "${instance_ip}" >> inventory.ini
-          echo "" >> inventory.ini 
+          echo "" >> inventory.ini
+          cat inventory.ini
 
       - name: Run Ansible Playbook
         run: ansible-playbook -i inventory.ini playbook.yml
         
-
       - name: Run a multi-line script
         run: |
           echo Add other actions to build,
