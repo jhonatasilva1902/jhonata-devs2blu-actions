@@ -53,7 +53,7 @@
       become: yes
       become_user: ubuntu
       git:
-        repo: 'https://github.com/jhonatasilva1902/teste_cicd_001.git'
+        repo: 'https://github.com/DevClaudinei/CRUD-Contatos.git'
         dest: /home/ubuntu/app
         version: main
         accept_hostkey: yes
