@@ -2,24 +2,7 @@ provider "aws" {
   region = "us-east-1"  # Substitua pela região desejada
 }
 
-# Data source para verificar se o par de chaves já existe
-data "aws_key_pair" "existing_key" {
-  key_name = "meu-keypair-jhonata-actions"
-}
-
-# Data source para verificar se o grupo de segurança já existe
-data "aws_security_group" "existing_security_group" {
-  name = "security-group-jhonata_actions"
-}
-
-resource "aws_key_pair" "meu_keypair_jhonata_actions" {
-  count = data.aws_key_pair.existing_key ? 0 : 1  # Cria apenas se não existir
-  key_name   = "meu-keypair-jhonata-actions"
-  public_key = file("~/.ssh/id_rsa.pub")
-}
-
 resource "aws_security_group" "security_group_jhonata_actions" {
-  count = data.aws_security_group.existing_security_group ? 0 : 1  # Cria apenas se não existir
   name        = "security-group-jhonata_actions"
   description = "Security Group para SSH, HTTP e porta 8000"
 
@@ -55,9 +38,9 @@ resource "aws_security_group" "security_group_jhonata_actions" {
 resource "aws_instance" "jhonata_vm_actions" {
   ami           = "ami-053b0d53c279acc90"  # AMI do Ubuntu 18.04 (substitua pela AMI desejada)
   instance_type = "t2.micro"  # Tipo de instância (substitua pelo tipo desejado)
-  key_name      = aws_key_pair.meu_keypair_jhonata_actions[0].key_name
+  key_name      = aws_key_pair.meu_keypair_jhonata_actions.key_name
 
-  vpc_security_group_ids = [aws_security_group.security_group_jhonata_actions[0].id]
+  vpc_security_group_ids = [aws_security_group.security_group_jhonata_actions.id]
 
   user_data = <<-EOF
               #!/bin/bash
@@ -71,6 +54,7 @@ resource "aws_instance" "jhonata_vm_actions" {
               chmod 600 ~/.ssh/authorized_keys
               EOF
 
+
   tags = {
     Name        = "jhonata_vm_actions"
     Environment = "dev"
@@ -78,4 +62,6 @@ resource "aws_instance" "jhonata_vm_actions" {
     Class       = "DevOps"
     Origem      = "Meu segundo git actions"
   }
+  
+
 }
