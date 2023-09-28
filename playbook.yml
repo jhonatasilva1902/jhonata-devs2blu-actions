@@ -25,11 +25,9 @@
         mode: '0644'
 
     - name: Adicionar chave SSH ao known_hosts
-      ansible.builtin.lineinfile:
-        line: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
-        dest: ~/.ssh/known_hosts
-        create: yes
-
+      ansible.builtin.known_hosts:
+        path: ~/.ssh/known_hosts
+        key: "{{ hostvars[inventory_hostname]['ansible_ssh_host'] }}"
 
     - name: Atualizar lista de pacotes
       apt:
