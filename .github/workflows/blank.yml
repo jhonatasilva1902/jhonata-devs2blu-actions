@@ -77,6 +77,16 @@ jobs:
           echo "" >> inventory.ini
           cat inventory.ini
 
+      - name: Setup SSH Keys depois do Ansible
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.SSH_PUBLIC_KEY }}" > ~/.ssh/id_rsa.pub
+          chmod 600 ~/.ssh/id_rsa
+          chmod 644 ~/.ssh/id_rsa.pub
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          pwd && ls -la ~/.ssh
+
       - name: Run Ansible Playbook
         run: ansible-playbook -i inventory.ini playbook.yml
         
@@ -84,4 +94,11 @@ jobs:
         run: |
           echo Add other actions to build,
           echo test, and deploy your project.
+
+      - name: Cleanup Resources
+        if: failure()  # Executa apenas se a etapa anterior falhar
+        run: |
+          terraform destroy -auto-approve -target=aws_key_pair.meu_keypair_jhonata_actions
+          terraform destroy -auto-approve -target=aws_security_group.security_group_jhonata_actions
+          terraform destroy -auto-approve  # Destruir outras recursos, se necessário
 
