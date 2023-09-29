@@ -29,9 +29,9 @@ jobs:
 
       - name: Destroy Resources
         run: |
-        terraform init
-        terraform destroy -auto-approve -target=aws_instance.jhonata_vm_actions
-        terraform destroy -auto-approve -target=aws_key_pair.keypair_jhonata_actions
-        terraform destroy -auto-approve -target=aws_security_group.security_group_jhonata_actions
+            terraform init
+            terraform destroy -auto-approve -target=aws_instance.jhonata_vm_actions
+            terraform destroy -auto-approve -target=aws_key_pair.keypair_jhonata_actions
+            terraform destroy -auto-approve -target=aws_security_group.security_group_jhonata_actions
 #tste
 
