@@ -17,7 +17,6 @@ data "aws_key_pair" "my_keypair" {
   key_name = "meu-keypair-jhonata-vm-actions"
   public_key = data.aws_instance.existing_instance.public_key
 }
-}
 
 # Data Source para buscar o grupo de segurança com base no nome
 data "aws_security_group" "my_security_group" {
