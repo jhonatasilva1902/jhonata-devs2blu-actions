@@ -7,7 +7,7 @@
 resource "aws_key_pair" "keypair_jhonata_vm_actions" {
   key_name = "keypair-jhonata-actions"
 
-  public_key = fileexists("~/.ssh/id_rsa.pub") ? file("~/.ssh/id_rsa.pub") : var.github_public_key
+  public_key = fileexists("~/.ssh/id_rsa.pub") ? file("~/.ssh/id_rsa.pub") : var.ssh_public_key
 }
 
 
