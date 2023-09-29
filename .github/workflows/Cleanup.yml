@@ -30,8 +30,8 @@ jobs:
       - name: Delete EC2 Instance
         run: |
           aws ec2 terminate-instances --instance-ids $(aws ec2 describe-instances --filters "Name=network-interface.addresses.public-ip,Values=$INSTANCE_IP" --query "Reservations[].Instances[].InstanceId" --output text)
-        #aws ec2 terminate-instances --instance-ids <ID_DA_INSTANCIA>
-        #aws ec2 terminate-instances --instance-ids i-1234567890abcdef0
+#aws ec2 terminate-instances --instance-ids <ID_DA_INSTANCIA>
+#aws ec2 terminate-instances --instance-ids i-1234567890abcdef0
           aws ec2 delete-key-pair --key-name keypair_jhonata_actions
           aws ec2 delete-security-group --group-name security_group_jhonata_actions
 
