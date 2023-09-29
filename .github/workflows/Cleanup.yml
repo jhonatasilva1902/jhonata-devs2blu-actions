@@ -17,17 +17,21 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
       
-      - name: Configurar AWS CLI
-        run: |
-          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws configure set default.region us-east-1
+      # - name: Configurar AWS CLI
+      #   run: |
+      #     aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     aws configure set default.region us-east-1
       
-       - name: Destroy Resources
+      # - name: Set GitHub Public Key
+      #   run: echo "::set-env name=github_public_key::${{ secrets.GITHUB_PUBLIC_KEY }}"
+
+
+      - name: Destroy Resources
         run: |
-          terraform init
-          terraform destroy -auto-approve -target=aws_instance.jhonata_vm_actions
-          terraform destroy -auto-approve -target=aws_key_pair.keypair_jhonata_actions
-          terraform destroy -auto-approve -target=aws_security_group.security_group_jhonata_actions
+        terraform init
+        terraform destroy -auto-approve -target=aws_instance.jhonata_vm_actions
+        terraform destroy -auto-approve -target=aws_key_pair.keypair_jhonata_actions
+        terraform destroy -auto-approve -target=aws_security_group.security_group_jhonata_actions
 #tste
 

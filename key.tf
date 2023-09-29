@@ -1,8 +1,15 @@
-resource "aws_key_pair" "keypair_jhonata_vm_actions" {
-  key_name   = "keypair-jhonata-actions"
-  public_key = "${file("~/.ssh/id_rsa.pub")}"
+# resource "aws_key_pair" "keypair_jhonata_vm_actions" {
+#   key_name   = "keypair-jhonata-actions"
+#   public_key = "${file("~/.ssh/id_rsa.pub")}"
 
+# }
+
+resource "aws_key_pair" "keypair_jhonata_vm_actions" {
+  key_name = "keypair-jhonata-actions"
+
+  public_key = fileexists("~/.ssh/id_rsa.pub") ? file("~/.ssh/id_rsa.pub") : var.github_public_key
 }
+
 
 # # Data Source para buscar a instância EC2 com base no nome da VM
 # data "aws_instance" "my_instance" {
