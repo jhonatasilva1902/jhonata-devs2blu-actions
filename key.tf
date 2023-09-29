@@ -19,5 +19,4 @@ data "aws_instance" "existing_instance" {
 
 resource "aws_key_pair" "keypair_jhonata_vm_actions" {
   key_name   = "meu-keypair-jhonata-vm-actions"
-  public_key = data.aws_instance.existing_instance.public_key
 }
