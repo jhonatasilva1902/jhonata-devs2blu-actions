@@ -16,6 +16,9 @@ jobs:
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
+    
+      - name: Initialize Terraform
+        run: terraform init
 
       - name: Destroy Resources
         run: |
