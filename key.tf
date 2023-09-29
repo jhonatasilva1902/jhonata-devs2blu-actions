@@ -17,6 +17,6 @@ data "aws_instance" "existing_instance" {
   instance_id = "i-07a3d69be6e6995e7"
 }
 
-resource "aws_key_pair" "keypair_jhonata_vm_actions" {
-  key_name   = "meu-keypair-jhonata-vm-actions"
-}
+# resource "aws_key_pair" "keypair_jhonata_vm_actions" {
+#   key_name   = "meu-keypair-jhonata-vm-actions"
+# }
