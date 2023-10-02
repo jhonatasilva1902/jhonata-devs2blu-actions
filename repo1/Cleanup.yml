@@ -1,0 +1,49 @@
+name: Cleanup Resources
+
+on:
+  workflow_run:
+    workflows: ["jhonata-devs2blu-action"]
+    types:
+      - completed
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+      
+      - name: Configurar AWS CLI
+        run: |
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws configure set default.region us-east-1
+      
+      - name: Set INSTANCE_IP environment variable
+        run: echo "INSTANCE_IP=$(terraform output -raw instance_ip)" >> $GITHUB_ENV
+
+      - name: Delete EC2 Instance
+        run: |
+          aws ec2 terminate-instances --instance-ids $(aws ec2 describe-instances --filters "Name=network-interface.addresses.public-ip,Values=$INSTANCE_IP" --query "Reservations[].Instances[].InstanceId" --output text)
+#aws ec2 terminate-instances --instance-ids <ID_DA_INSTANCIA>
+#aws ec2 terminate-instances --instance-ids i-1234567890abcdef0
+          aws ec2 delete-key-pair --key-name keypair_jhonata_actions
+          aws ec2 delete-security-group --group-name security_group_jhonata_actions
+
+#       - name: Set GitHub Public Key
+#         run: echo "::set-env name=ssh_public_key::${{ secrets.SSH_PUBLIC_KEY }}"
+
+
+
+#       - name: Destroy Resources
+#         run: |
+#             terraform init
+#             terraform destroy -auto-approve -target=aws_instance.jhonata_vm_actions
+#             terraform destroy -auto-approve -target=aws_key_pair.keypair_jhonata_actions
+#             terraform destroy -auto-approve -target=aws_security_group.security_group_jhonata_actions
+
+
