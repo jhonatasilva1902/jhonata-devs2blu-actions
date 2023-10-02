@@ -26,7 +26,6 @@ jobs:
       - name: Set INSTANCE_IP environment variable
         run: echo "INSTANCE_IP=$(terraform output -raw instance_ip)" >> $GITHUB_ENV
 
-
       - name: Delete EC2 Instance
         run: |
           aws ec2 terminate-instances --instance-ids $(aws ec2 describe-instances --filters "Name=network-interface.addresses.public-ip,Values=$INSTANCE_IP" --query "Reservations[].Instances[].InstanceId" --output text)
