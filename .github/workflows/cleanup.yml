@@ -1,4 +1,4 @@
-name: Cleanup Resources
+name: Get and Delete EC2 Instance
 
 on:
   workflow_run:
@@ -7,7 +7,7 @@ on:
       - completed
 
 jobs:
-  cleanup:
+  get_and_delete_instance:
     runs-on: ubuntu-latest
 
     steps:
@@ -17,38 +17,66 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
 
-      - name: Install Terraform (if not already installed)
-        run: |
-          if ! command -v terraform &> /dev/null; then
-            echo "Terraform is not installed. Installing..."
-            curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
-            echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
-            sudo apt-get update && sudo apt-get install terraform
-          fi
-      
       - name: Configure AWS CLI
         run: |
           aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws configure set default.region us-east-1
-      
-      - name: Set INSTANCE_IP environment variable
+
+      - name: Set INSTANCE_NAME, KEY_NAME, and SECURITY_GROUP_NAME environment variables
         run: |
-          echo "INSTANCE_IP=$(terraform output -raw instance_ip)" > instance_ip.sh
-          chmod +x instance_ip.sh
-          ./instance_ip.sh >> $GITHUB_ENV
-          cat instance_ip.sh
+          echo "INSTANCE_NAME=jhonata_vm_actions" >> $GITHUB_ENV
+          echo "KEY_NAME=keypair_jhonata_actions" >> $GITHUB_ENV
+          echo "SECURITY_GROUP_NAME=security_group_jhonata_actions" >> $GITHUB_ENV
+
+      - name: Get IP Address
+        id: get_ip
+        run: |
+          INSTANCE_NAME="$INSTANCE_NAME"
+          KEY_NAME="$KEY_NAME"
+          SECURITY_GROUP_NAME="$SECURITY_GROUP_NAME"
+
+          # Obter o ID da instância com base no nome
+          INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=$INSTANCE_NAME" --query "Reservations[].Instances[].InstanceId" --output text)
+
+          if [ -n "$INSTANCE_ID" ]; then
+            # Obter o IP da instância com base no ID
+            INSTANCE_IP=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query "Reservations[].Instances[].NetworkInterfaces[].Association.PublicIp" --output text)
+
+            # Verifique se a instância tem a keypair e security group corretos
+            KEY_PAIR=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query "Reservations[].Instances[].KeyName" --output text)
+            SECURITY_GROUPS=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query "Reservations[].Instances[].SecurityGroups[].GroupName" --output text)
+
+            if [ "$KEY_PAIR" == "$KEY_NAME" ] && [[ "$SECURITY_GROUPS" == *"$SECURITY_GROUP_NAME"* ]]; then
+              echo "IP Address of $INSTANCE_NAME: $INSTANCE_IP"
+              echo "::set-output name=instance_ip::$INSTANCE_IP"
+            else
+              echo "Instance doesn't match the specified keypair or security group."
+            fi
+          else
+            echo "No instances found with the specified name: $INSTANCE_NAME"
+          fi
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       - name: Delete EC2 Instance
+        if: steps.get_ip.outputs.instance_ip != ''
         run: |
+          INSTANCE_IP="$INPUT_INSTANCE_IP"  # Obtém o IP da instância da saída anterior
+          
+          # Obter o ID da instância com base no IP
           INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=network-interface.addresses.public-ip,Values=$INSTANCE_IP" --query "Reservations[].Instances[].InstanceId" --output text)
           
           if [ -n "$INSTANCE_ID" ]; then
+            # Terminate a instância EC2
             aws ec2 terminate-instances --instance-ids $INSTANCE_ID
             echo "EC2 Instance with ID $INSTANCE_ID has been terminated."
           else
             echo "No EC2 instances found with the specified IP address: $INSTANCE_IP"
           fi
 
-          aws ec2 delete-key-pair --key-name keypair_jhonata_actions
-          aws ec2 delete-security-group --group-name security_group_jhonata_actions
+          # Resto do seu código para excluir a chave e o grupo de segurança
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
