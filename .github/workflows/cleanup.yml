@@ -37,6 +37,7 @@ jobs:
           echo "INSTANCE_IP=$(terraform output -raw instance_ip)" > instance_ip.sh
           chmod +x instance_ip.sh
           ./instance_ip.sh >> $GITHUB_ENV
+          cat instance_ip.sh
 
       - name: Delete EC2 Instance
         run: |
