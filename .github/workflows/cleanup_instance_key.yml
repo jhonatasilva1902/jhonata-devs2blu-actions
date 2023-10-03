@@ -34,16 +34,16 @@ jobs:
 
     - name: Excluir Key Pair
       run: |
-        KEY_NAME=keypair_jhonata_actions
+        KEY_NAME=keypair-jhonata-actions
 
         # Excluir o key pair
         aws ec2 delete-key-pair --key-name $KEY_NAME
         echo "Key pair $KEY_NAME foi excluído."
 
-    # - name: Excluir Security Group
-    #   run: |
-    #     SECURITY_GROUP_NAME=security_group_jhonata_actions
+    - name: Excluir Security Group
+      run: |
+        SECURITY_GROUP_NAME=security-group-jhonata_actions
 
-    #     # Excluir o security group
-    #     aws ec2 delete-security-group --group-name $SECURITY_GROUP_NAME
-    #     echo "Security group $SECURITY_GROUP_NAME foi excluído."
+        # Excluir o security group
+        aws ec2 delete-security-group --group-name $SECURITY_GROUP_NAME
+        echo "Security group $SECURITY_GROUP_NAME foi excluído."
