@@ -49,7 +49,7 @@ jobs:
 
             if [ "$KEY_PAIR" == "$KEY_NAME" ] && [[ "$SECURITY_GROUPS" == *"$SECURITY_GROUP_NAME"* ]]; then
               echo "IP Address of $INSTANCE_NAME: $INSTANCE_IP"
-              echo "Instance IP is $INSTANCE_IP" >> $GITHUB_ENV
+              echo "INSTANCE_IP=$INSTANCE_IP" >> $GITHUB_ENV
             else
               echo "Instance doesn't match the specified keypair or security group."
             fi
@@ -60,16 +60,13 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-
       - name: Print Instance IP
         run: echo "Instance IP is $INSTANCE_IP"
-        env:
-          INSTANCE_IP: ${{ steps.get_ip.outputs.instance_ip }}
 
       - name: Delete EC2 Instance
-        if: steps.get_ip.outputs.instance_ip != ''
+        if: env.INSTANCE_IP != ''
         run: |
-          INSTANCE_IP="$INPUT_INSTANCE_IP"  # Obtém o IP da instância da saída anterior
+          INSTANCE_IP="$INSTANCE_IP"  # Obtém o IP da instância da variável de ambiente
           
           # Obter o ID da instância com base no IP
           INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=network-interface.addresses.public-ip,Values=$INSTANCE_IP" --query "Reservations[].Instances[].InstanceId" --output text)
