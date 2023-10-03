@@ -26,7 +26,7 @@
       when: apt_atualizado is succeeded
 
     - name: Liberar o bloqueio do dpkg
-      shell: "rm -f /var/lib/dpkg/lock-frontend"
+      shell: "flock /var/lib/dpkg/lock-frontend -u /var/lib/dpkg/lock-frontend"
 
     - name: Adicionar chave GPG do Docker
       apt_key:

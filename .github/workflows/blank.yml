@@ -62,7 +62,7 @@ jobs:
 
 
       - name: Wait for instance to be ready
-        run: sleep 60  # waits for 60 seconds
+        run: sleep 80  # waits for 60 seconds
 
       - name: Setup Python
         uses: actions/setup-python@v2
