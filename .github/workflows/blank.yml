@@ -26,6 +26,10 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+      - name: Create S3 Bucket
+        run: |
+          aws s3api create-bucket --bucket jhonata-terraform-state --region us-east-1
+
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
 

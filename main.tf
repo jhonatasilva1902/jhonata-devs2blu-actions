@@ -4,7 +4,7 @@ provider "aws" {
 
 
 resource "aws_security_group" "security_group_jhonata_actions" {
-  name        = "security-group-jhonata_actions"
+  name        = "security_group_jhonata_actions"
   description = "Security Group para SSH, HTTP e porta 8000"
 
   ingress {
@@ -56,6 +56,7 @@ resource "aws_instance" "jhonata_vm_actions" {
 
   tags = {
     Name = "jhonata_vm_actions"
+    Aluno = "jhonata"
     Environment = "dev"
     Application = "backend"
     Class = "DevOps"    

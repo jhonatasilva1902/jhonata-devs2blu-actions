@@ -3,6 +3,10 @@ name: Excluir Instância AWS
 on:
   workflow_dispatch:  # Isso desencadeará o fluxo de trabalho manualmente
 
+  push:
+    branches:
+      - destroy  # Adicione a branch "destroy" aqui
+
 jobs:
   delete-instance:
     runs-on: ubuntu-latest
@@ -34,7 +38,7 @@ jobs:
 
     - name: Excluir Key Pair
       run: |
-        KEY_NAME=keypair-jhonata-actions
+        KEY_NAME=keypair_jhonata_actions
 
         # Excluir o key pair
         aws ec2 delete-key-pair --key-name $KEY_NAME
@@ -42,7 +46,7 @@ jobs:
 
     - name: Excluir Security Group
       run: |
-        SECURITY_GROUP_NAME=security-group-jhonata_actions
+        SECURITY_GROUP_NAME=security_group_jhonata_actions
 
         # Excluir o security group
         aws ec2 delete-security-group --group-name $SECURITY_GROUP_NAME
