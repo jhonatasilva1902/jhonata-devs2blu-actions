@@ -68,15 +68,28 @@ jobs:
         run: |
           status="pending"
           while [[ "$status" == "pending" ]]; do
-            status=$(curl -s -H "Authorization: Bearer ${{secrets.GITHUB_TOKEN}}" \
-                    "https://api.github.com/repos/${{github.repository}}/commits/${{github.sha}}/check-runs" \
-                    | jq -r '.check_runs[] | select(.name == "jhonata-devs2blu-action") | .status')
-            if [[ "$status" == "pending" ]]; then
-              echo "Status check is still pending, waiting..."
+            response=$(curl -s -H "Authorization: Bearer ${{secrets.GITHUB_TOKEN}}" \
+                      "https://api.github.com/repos/${{github.repository}}/commits/${{github.sha}}/check-runs")
+            check_runs_count=$(echo "$response" | jq -r '.total_count')
+            
+            if [[ "$check_runs_count" -gt 0 ]]; then
+              status=$(echo "$response" | jq -r '.check_runs[] | select(.name == "jhonata-devs2blu-action") | .status')
+              
+              if [[ "$status" == "pending" ]]; then
+                echo "Status check is still pending, waiting..."
+                sleep 10
+              fi
+            else
+              echo "No status checks found, waiting..."
               sleep 10
             fi
           done
         timeout-minutes: 30
+
+Neste código, primeiro verificamos se existem verificações de status disponíveis usando o campo total_count na resposta JSON da API. Se não houver verificações de status, esperamos 10 segundos antes de verificar novamente. Se houver verificações de status, verificamos o status da verificação "jhonata-devs2blu-action" e aguardamos até que ele não seja mais "pending" ou até que o tempo limite de 30 minutos seja atingido.
+
+Isso deve evitar o erro de iteração sobre um JSON vazio e garantir que o fluxo de trabalho espere de forma adequada até que o status check seja bem-sucedido.
+
 
       - name: Setup Python
         uses: actions/setup-python@v2
