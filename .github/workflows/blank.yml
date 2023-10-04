@@ -86,11 +86,6 @@ jobs:
           done
         timeout-minutes: 30
 
-Neste código, primeiro verificamos se existem verificações de status disponíveis usando o campo total_count na resposta JSON da API. Se não houver verificações de status, esperamos 10 segundos antes de verificar novamente. Se houver verificações de status, verificamos o status da verificação "jhonata-devs2blu-action" e aguardamos até que ele não seja mais "pending" ou até que o tempo limite de 30 minutos seja atingido.
-
-Isso deve evitar o erro de iteração sobre um JSON vazio e garantir que o fluxo de trabalho espere de forma adequada até que o status check seja bem-sucedido.
-
-
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
