@@ -122,10 +122,10 @@ jobs:
           echo Add other actions to build,
           echo test, and deploy your project.
 
-      - name: Cleanup Resources
-        if: failure()  # Executa apenas se a etapa anterior falhar
-        run: |
-          terraform destroy -auto-approve -target=aws_key_pair.keypair_jhonata_actions
-          terraform destroy -auto-approve -target=aws_security_group.security_group_jhonata_actions
-          terraform destroy -auto-approve  # Destruir outras recursos, se necessário
+      # - name: Cleanup Resources
+      #   if: failure()  # Executa apenas se a etapa anterior falhar
+      #   run: |
+      #     terraform destroy -auto-approve -target=aws_key_pair.keypair_jhonata_actions
+      #     terraform destroy -auto-approve -target=aws_security_group.security_group_jhonata_actions
+      #     terraform destroy -auto-approve  # Destruir outras recursos, se necessário
 
