@@ -84,11 +84,10 @@ jobs:
               sleep 10
             fi
           done
-        timeout-minutes: 30
+        timeout-minutes: 10
 
-      - name: Continue if status check is not initializing
-        if: status != 'initializing'
-        run: echo "Status check is not initializing, continue with other steps"
+      - name: Continue with other steps
+        run: echo "Status check is no longer initializing, continue with other steps"
 
       - name: Setup Python
         uses: actions/setup-python@v2
