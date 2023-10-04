@@ -5,23 +5,23 @@
   remote_user: ubuntu
 
   tasks:
-    - name: Esperar até que a instância esteja pronta
-      wait_for:
-        host: "{{ inventory_hostname }}"
-        port: 22
-        delay: 30
-        timeout: 600
-        state: started
-      delegate_to: localhost
-      async: 0
-      poll: 0
-      register: instance_ready
-      until: instance_ready.failed == false
+    # - name: Esperar até que a instância esteja pronta
+    #   wait_for:
+    #     host: "{{ inventory_hostname }}"
+    #     port: 22
+    #     delay: 30
+    #     timeout: 600
+    #     state: started
+    #   delegate_to: localhost
+    #   async: 0
+    #   poll: 0
+    #   register: instance_ready
+    #   until: instance_ready.failed == false
 
-    - name: Adquirir o bloqueio do dpkg
-      shell: "flock /var/lib/dpkg/lock-frontend -c 'sleep 0.1'"
-      async: 0
-      poll: 0
+    # - name: Adquirir o bloqueio do dpkg
+    #   shell: "flock /var/lib/dpkg/lock-frontend -c 'sleep 0.1'"
+    #   async: 0
+    #   poll: 0
 
     - name: Atualizar lista de pacotes
       apt:
@@ -38,10 +38,10 @@
         state: present
       when: apt_atualizado is succeeded
 
-    - name: Liberar o bloqueio do dpkg
-      shell: 
-    - name: Liberar o bloqueio do dpkg
-      shell: "rm -f /var/lib/dpkg/lock-frontend"
+    # - name: Liberar o bloqueio do dpkg
+    #   shell: 
+    # - name: Liberar o bloqueio do dpkg
+    #   shell: "rm -f /var/lib/dpkg/lock-frontend"
 
     - name: Adicionar chave GPG do Docker
       apt_key:
