@@ -64,24 +64,28 @@ jobs:
       # - name: Wait for instance to be ready
       #   run: sleep 80  # waits for 60 seconds
       
-      - name: Wait for instance to be ready
-        run: |
-          while true; do
-            status_check=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-                          "https://api.github.com/repos/${{ github.repository }}/commits/${{ github.sha }}/check-suites" \
-                          | jq -r '.check_suites[0].conclusion')
-            if [[ "$status_check" == "success" ]]; then
-              echo "Status check is '2/2 checks passed', continuing with other steps."
-              break
-            elif [[ "$status_check" == "null" ]]; then
-              echo "Status check is 'null', waiting..."
+        - name: Get AWS Instance ID by Name
+          run: |
+            INSTANCE_NAME="jhonata_vm_actions"
+            KEY_NAME="keypair_jhonata_actions"
+            SECURITY_GROUP_NAME="security_group_jhonata_actions"
+            
+            instance_id=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=$INSTANCE_NAME" "Name=key-name,Values=$KEY_NAME" "Name=instance.group-name,Values=$SECURITY_GROUP_NAME" --query "Reservations[0].Instances[0].InstanceId" --output text)
+            echo "::set-output name=instance_id::$instance_id"
+          id: aws_instance
+
+        - name: Wait for AWS Instance State
+          run: |
+            while true; do
+              instance_state=$(aws ec2 describe-instances --instance-ids ${{ steps.aws_instance.outputs.instance_id }} --query "Reservations[0].Status[0].check.Name" --output text)
+              if [[ "$instance_state" != "Initializing" ]]; then
+                echo "Instance state is 'Running', continuing to check GitHub Actions status."
+                break
+              fi
+              echo "Instance state is '$instance_state', waiting..."
               sleep 10
-            else
-              echo "Status check is '$status_check', exiting."
-              exit 1
-            fi
-          done
-        timeout-minutes: 6
+            done
+        timeout-minutes: 5
 
       - name: Continue with other steps
         run: echo "Status check is no longer initializing, continue with other steps"
