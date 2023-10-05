@@ -1,5 +1,5 @@
 name: Excluir Instância AWS
-
+# utilizar o comando: git push origin destroy
 on:
   workflow_dispatch:
   push:
