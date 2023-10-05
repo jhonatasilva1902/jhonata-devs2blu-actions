@@ -71,7 +71,6 @@ jobs:
            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
            aws-region: us-east-1  # Substitua pela região AWS desejada
 
-
       - name: Get AWS Instance ID by Name
         run: |
           INSTANCE_NAME="jhonata_vm_actions"
