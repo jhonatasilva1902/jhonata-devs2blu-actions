@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - destroy  # Adicione a branch "destroy" aqui
+      - destroy  # Adicione a branch "destroy"  
 
 jobs:
   delete-instance:
