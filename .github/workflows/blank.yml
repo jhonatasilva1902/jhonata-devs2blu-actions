@@ -83,7 +83,9 @@ jobs:
 
       - name: Get AWS Instance ID from Terraform Output
         run: |
-          instance_id=$(terraform output -raw instance_id)
+#   instance_id=$(terraform output -raw instance_id)
+          echo "instance_id=`terraform output -raw instance_id`" >> $GITHUB_ENV
+          echo "${instance_id}"
           echo "::set-env name=INSTANCE_ID::$instance_id"
 
       - name: Wait for AWS Instance to be Ready
