@@ -89,7 +89,7 @@ jobs:
       - name: Wait for AWS Instance to be Ready
         run: |
           instance_id="${{ env.INSTANCE_ID }}"
-          aws ssm wait document-status --instance-id "$instance_id" --document-name "AWS-RunShellScript"
+          aws ssm wait command-executed --instance-id "$instance_id"
           echo "Instance is now completely available and ready for use."
         timeout-minutes: 5
 
