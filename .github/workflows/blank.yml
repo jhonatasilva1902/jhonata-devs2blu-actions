@@ -71,15 +71,20 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1  # Substitua pela região AWS desejada
 
-      - name: Get AWS Instance ID by Name
-        run: |
-          INSTANCE_NAME="jhonata_vm_actions"
-          KEY_NAME="keypair_jhonata_actions"
-          SECURITY_GROUP_NAME="security_group_jhonata_actions"
+      # - name: Get AWS Instance ID by Name
+      #   run: |
+      #     INSTANCE_NAME="jhonata_vm_actions"
+      #     KEY_NAME="keypair_jhonata_actions"
+      #     SECURITY_GROUP_NAME="security_group_jhonata_actions"
           
-          instance_id=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=$INSTANCE_NAME" "Name=key-name,Values=$KEY_NAME" "Name=instance.group-name,Values=$SECURITY_GROUP_NAME" --query "Reservations[0].Instances[0].InstanceId" --output text)
-          echo "::set-output name=instance_id::$instance_id"
-        id: aws_instance
+      #     instance_id=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=$INSTANCE_NAME" "Name=key-name,Values=$KEY_NAME" "Name=instance.group-name,Values=$SECURITY_GROUP_NAME" --query "Reservations[0].Instances[0].InstanceId" --output text)
+      #     echo "::set-output name=instance_id::$instance_id"
+      #   id: aws_instance
+
+      - name: Get AWS Instance ID from Terraform Output
+        run: |
+          instance_id=$(terraform output -raw instance_id)
+          echo "::set-env name=INSTANCE_ID::$instance_id"
 
       - name: Wait for AWS Instance to be Ready
         run: |
