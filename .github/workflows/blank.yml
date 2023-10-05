@@ -6,7 +6,7 @@ name: jhonata-devs2blu-action
 on:
   # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
-    branches: [ "main" ]
+    branches: [ "deploy" ]
   
   workflow_dispatch:
 
@@ -60,32 +60,32 @@ jobs:
       - name: Terraform Apply
         run: terraform apply -auto-approve -var="create_key=false"
 
-
-      # - name: Wait for instance to be ready
-      #   run: sleep 80  # waits for 60 seconds
+      # Com bucket da S3 não precisa mais do delay, somente continuar de onde deu erro.
+      - name: Wait for instance to be ready
+        run: sleep 80  # waits for 60 seconds
       
-      # - name: Get AWS Instance ID by Name
-      #   run: |
-      #     INSTANCE_NAME="jhonata_vm_actions"
-      #     KEY_NAME="keypair_jhonata_actions"
-      #     SECURITY_GROUP_NAME="security_group_jhonata_actions"
+      - name: Get AWS Instance ID by Name
+        run: |
+          INSTANCE_NAME="jhonata_vm_actions"
+          KEY_NAME="keypair_jhonata_actions"
+          SECURITY_GROUP_NAME="security_group_jhonata_actions"
           
-      #     instance_id=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=$INSTANCE_NAME" "Name=key-name,Values=$KEY_NAME" "Name=instance.group-name,Values=$SECURITY_GROUP_NAME" --query "Reservations[0].Instances[0].InstanceId" --output text)
-      #     echo "::set-output name=instance_id::$instance_id"
-      #   id: aws_instance
+          instance_id=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=$INSTANCE_NAME" "Name=key-name,Values=$KEY_NAME" "Name=instance.group-name,Values=$SECURITY_GROUP_NAME" --query "Reservations[0].Instances[0].InstanceId" --output text)
+          echo "::set-output name=instance_id::$instance_id"
+        id: aws_instance
 
-      # - name: Wait for AWS Instance State
-      #   run: |
-      #     while true; do
-      #       instance_state=$(aws ec2 describe-instances --instance-ids ${{ steps.aws_instance.outputs.instance_id }} --query "Reservations[0].Status[0].check.Name" --output text)
-      #       if [[ "$instance_state" != "Initializing" ]]; then
-      #         echo "Instance state is 'Running', continuing to check GitHub Actions status."
-      #         break
-      #       fi
-      #       echo "Instance state is '$instance_state', waiting..."
-      #       sleep 10
-      #     done
-      #   timeout-minutes: 5
+      - name: Wait for AWS Instance State
+        run: |
+          while true; do
+            instance_state=$(aws ec2 describe-instances --instance-ids ${{ steps.aws_instance.outputs.instance_id }} --query "Reservations[0].Status[0].check.Name" --output text)
+            if [[ "$instance_state" != "Initializing" ]]; then
+              echo "Instance state is 'Running', continuing to check GitHub Actions status."
+              break
+            fi
+            echo "Instance state is '$instance_state', waiting..."
+            sleep 10
+          done
+        timeout-minutes: 5
 
     # - name: Continue with other steps
     #   run: echo "Status check is no longer initializing, continue with other steps"
@@ -122,6 +122,7 @@ jobs:
           echo Add other actions to build,
           echo test, and deploy your project.
 
+      # Com bucket não precisa mais excluir a instancia, somente atualizar.
       # - name: Cleanup Resources
       #   if: failure()  # Executa apenas se a etapa anterior falhar
       #   run: |
