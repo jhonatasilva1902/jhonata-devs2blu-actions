@@ -64,6 +64,14 @@ jobs:
       - name: Wait for instance to be ready
         run: sleep 80  # waits for 80 seconds
       
+       - name: Configurar AWS CLI
+         uses: aws-actions/configure-aws-credentials@v1
+         with:
+           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+           aws-region: us-east-1  # Substitua pela região AWS desejada
+
+
       - name: Get AWS Instance ID by Name
         run: |
           INSTANCE_NAME="jhonata_vm_actions"
