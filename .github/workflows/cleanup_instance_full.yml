@@ -5,7 +5,7 @@ on:
   push:
     branches:
       - main
-      - destroy  # Adicione a branch "destroy" aqu
+      - destroy  # Adicione a branch "destroy" aqui
 
 jobs:
   delete-instance:
