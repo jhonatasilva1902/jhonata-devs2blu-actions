@@ -86,11 +86,29 @@ jobs:
           instance_id=$(terraform output -raw instance_id)
           echo "INSTANCE_ID=$instance_id" >> $GITHUB_ENV
 
+      # - name: Wait for AWS Instance to be Ready
+      #   run: |
+      #     instance_id="${{ env.INSTANCE_ID }}"
+      #     aws ssm wait command-executed --instance-id "$instance_id"
+      #     echo "Instance is now completely available and ready for use."
       - name: Wait for AWS Instance to be Ready
         run: |
           instance_id="${{ env.INSTANCE_ID }}"
-          aws ssm wait command-executed --instance-id "$instance_id"
-          echo "Instance is now completely available and ready for use."
+          
+# Loop para verificar o estado da instância
+          while true; do
+            instance_state=$(aws ec2 describe-instances --instance-ids "$instance_id" --query "Reservations[0].Instances[0].State.Name" --output text)
+            if [[ "$instance_state" == "running" ]]; then
+# Verificar se a instância está pronta para uso (por exemplo, aguardar o sistema inicializar)
+              instance_status=$(aws ec2 describe-instance-status --instance-ids "$instance_id" --query "InstanceStatuses[0].InstanceStatus.Status" --output text)
+              if [[ "$instance_status" == "ok" ]]; then
+                echo "Instance is now completely available and ready for use."
+                break
+              fi
+            fi
+            echo "Instance state is '$instance_state', waiting..."
+            sleep 10
+          done
         timeout-minutes: 5
 
     # - name: Continue with other steps
