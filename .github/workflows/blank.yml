@@ -91,11 +91,10 @@ jobs:
       #     instance_id="${{ env.INSTANCE_ID }}"
       #     aws ssm wait command-executed --instance-id "$instance_id"
       #     echo "Instance is now completely available and ready for use."
+     
       - name: Wait for AWS Instance to be Ready
         run: |
           instance_id="${{ env.INSTANCE_ID }}"
-          
-# Loop para verificar o estado da instância
           while true; do
             instance_state=$(aws ec2 describe-instances --instance-ids "$instance_id" --query "Reservations[0].Instances[0].State.Name" --output text)
             if [[ "$instance_state" == "running" ]]; then
