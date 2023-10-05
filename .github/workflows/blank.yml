@@ -86,12 +86,6 @@ jobs:
           instance_id=$(terraform output -raw instance_id)
           echo "INSTANCE_ID=$instance_id" >> $GITHUB_ENV
 
-      # - name: Wait for AWS Instance to be Ready
-      #   run: |
-      #     instance_id="${{ env.INSTANCE_ID }}"
-      #     aws ssm wait command-executed --instance-id "$instance_id"
-      #     echo "Instance is now completely available and ready for use."
-     
       - name: Wait for AWS Instance to be Ready
         run: |
           instance_id="${{ env.INSTANCE_ID }}"
