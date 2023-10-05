@@ -62,7 +62,7 @@ jobs:
 
       # Com bucket da S3 não precisa mais do delay, somente continuar de onde deu erro.
       - name: Wait for instance to be ready
-        run: sleep 80  # waits for 60 seconds
+        run: sleep 80  # waits for 80 seconds
       
       - name: Get AWS Instance ID by Name
         run: |
@@ -74,17 +74,11 @@ jobs:
           echo "::set-output name=instance_id::$instance_id"
         id: aws_instance
 
-      - name: Wait for AWS Instance State
+      - name: Wait for AWS Instance to be Ready
         run: |
-          while true; do
-            instance_state=$(aws ec2 describe-instances --instance-ids ${{ steps.aws_instance.outputs.instance_id }} --query "Reservations[0].Status[0].check.Name" --output text)
-            if [[ "$instance_state" != "Initializing" ]]; then
-              echo "Instance state is 'Running', continuing to check GitHub Actions status."
-              break
-            fi
-            echo "Instance state is '$instance_state', waiting..."
-            sleep 10
-          done
+          instance_id="${{ steps.aws_instance.outputs.instance_id }}"
+          aws ec2 wait instance-status-ok --instance-ids "$instance_id"
+          echo "Instance is now completely available and ready for use."
         timeout-minutes: 5
 
     # - name: Continue with other steps
