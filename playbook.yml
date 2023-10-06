@@ -1,4 +1,3 @@
----
 - name: Instalar Docker no Host Remoto
   hosts: jhonata_vm_actions
   become: yes

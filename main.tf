@@ -53,7 +53,6 @@ resource "aws_instance" "jhonata_vm_actions" {
               EOF
 
 
-
   tags = {
     Name = "jhonata_vm_actions"
     Aluno = "jhonata"
