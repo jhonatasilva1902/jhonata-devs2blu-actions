@@ -66,10 +66,25 @@ jobs:
         aws ec2 delete-key-pair --key-name $KEY_NAME
         echo "Key pair $KEY_NAME foi excluído."
 
+    # - name: Excluir Security Group
+    #   run: |
+    #     SECURITY_GROUP_NAME=security_group_jhonata_actions
+
+    #     # Excluir o security group
+    #     aws ec2 delete-security-group --group-name $SECURITY_GROUP_NAME
+    #     echo "Security group $SECURITY_GROUP_NAME foi excluído."
     - name: Excluir Security Group
       run: |
         SECURITY_GROUP_NAME=security_group_jhonata_actions
 
-        # Excluir o security group
-        aws ec2 delete-security-group --group-name $SECURITY_GROUP_NAME
-        echo "Security group $SECURITY_GROUP_NAME foi excluído."
+        # Verificar se o security group existe
+        if aws ec2 describe-security-groups --group-names $SECURITY_GROUP_NAME &> /dev/null; then
+          # Aguardar 30 segundos após o término da instância
+          sleep 30
+
+          # Excluir o security group
+          aws ec2 delete-security-group --group-name $SECURITY_GROUP_NAME
+          echo "Security group $SECURITY_GROUP_NAME foi excluído."
+        else
+          echo "Security group $SECURITY_GROUP_NAME não encontrado."
+        fi
