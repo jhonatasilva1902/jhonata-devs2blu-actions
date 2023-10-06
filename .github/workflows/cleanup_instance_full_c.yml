@@ -1,29 +1,88 @@
-- name: Verificar se a instância existe
-  run: |
-    INSTANCE_NAME=jhonata_vm_actions
+name: Excluir Instância AWS
 
-    # Verificar se a instância existe
-    INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=$INSTANCE_NAME" "Name=instance-state-name,Values=running" --query "Reservations[0].Instances[0].InstanceId" --output text 2>/dev/null)
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - destroy  # Adicione a branch "destroy"  
 
-    if [ -n "$INSTANCE_ID" ]; then
-      # Obter o ID do grupo de segurança
-      SECURITY_GROUP_NAME=security_group_jhonata_actions
-      SECURITY_GROUP_ID=$(aws ec2 describe-security-groups --group-names $SECURITY_GROUP_NAME --query "SecurityGroups[0].GroupId" --output text)
+jobs:
+  delete-instance:
+    runs-on: ubuntu-latest
 
-      if [ -n "$SECURITY_GROUP_ID" ]; then
-        # Desassociar o grupo de segurança da instância
-        aws ec2 modify-instance-attribute --instance-id $INSTANCE_ID --groups $SECURITY_GROUP_ID
-        echo "Grupo de segurança $SECURITY_GROUP_NAME desassociado da instância $INSTANCE_NAME."
-      else
-        echo "Grupo de segurança $SECURITY_GROUP_NAME não encontrado."
-      fi
+    steps:
+    - name: Checkout código-fonte
+      uses: actions/checkout@v2
 
-      # Aguardar alguns segundos para garantir que a desassociação seja concluída
-      sleep 30
+    - name: Configurar AWS CLI
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1  # Substitua pela região AWS desejada
 
-      # Terminar a instância
-      aws ec2 terminate-instances --instance-ids $INSTANCE_ID
-      echo "Instância $INSTANCE_NAME está sendo excluída."
-    else
-      echo "Instância $INSTANCE_NAME não encontrada ou não está em execução. Continuando..."
-    fi
+    - name: Verificar branch
+      run: |
+        if [ "$GITHUB_REF" != "refs/heads/destroy" ]; then
+          echo "Ação de destruição só é permitida na branch 'destroy'."
+          exit 1
+        fi
+
+    - name: Verificar se a instância existe
+      run: |
+        INSTANCE_NAME=jhonata_vm_actions
+
+        # Verificar se a instância existe
+        INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=$INSTANCE_NAME" "Name=instance-state-name,Values=running" --query "Reservations[0].Instances[0].InstanceId" --output text 2>/dev/null)
+
+        if [ -n "$INSTANCE_ID" ]; then
+          # Obter o ID do grupo de segurança
+          SECURITY_GROUP_NAME=security_group_jhonata_actions
+          SECURITY_GROUP_ID=$(aws ec2 describe-security-groups --group-names $SECURITY_GROUP_NAME --query "SecurityGroups[0].GroupId" --output text)
+
+          if [ -n "$SECURITY_GROUP_ID" ]; then
+            # Desassociar o grupo de segurança da instância
+            aws ec2 modify-instance-attribute --instance-id $INSTANCE_ID --groups $SECURITY_GROUP_ID
+            echo "Grupo de segurança $SECURITY_GROUP_NAME desassociado da instância $INSTANCE_NAME."
+          else
+            echo "Grupo de segurança $SECURITY_GROUP_NAME não encontrado."
+          fi
+
+          # Aguardar alguns segundos para garantir que a desassociação seja concluída
+          sleep 30
+
+          # Terminar a instância
+          aws ec2 terminate-instances --instance-ids $INSTANCE_ID
+          echo "Instância $INSTANCE_NAME está sendo excluída."
+        else
+          echo "Instância $INSTANCE_NAME não encontrada ou não está em execução. Continuando..."
+        fi
+
+    - name: Excluir Key Pair
+      run: |
+        KEY_NAME=keypair_jhonata_actions
+
+        # Verificar se a key pair existe
+        if aws ec2 describe-key-pairs --key-names $KEY_NAME &> /dev/null; then
+          # Excluir a key pair
+          aws ec2 delete-key-pair --key-name $KEY_NAME
+          echo "Key pair $KEY_NAME foi excluído."
+        else
+          echo "Key pair $KEY_NAME não encontrado."
+        fi
+
+    - name: Excluir Security Group
+      run: |
+        SECURITY_GROUP_NAME=security_group_jhonata_actions
+
+        # Verificar se o security group existe
+        if aws ec2 describe-security-groups --group-names $SECURITY_GROUP_NAME &> /dev/null; then
+          # Aguardar 30 segundos após o término da instância
+          sleep 30
+
+          # Excluir o security group
+          aws ec2 delete-security-group --group-name $SECURITY_GROUP_NAME
+          echo "Security group $SECURITY_GROUP_NAME foi excluído."
+        else
+          echo "Security group $SECURITY_GROUP_NAME não encontrado."
+        fi
