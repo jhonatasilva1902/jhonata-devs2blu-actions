@@ -28,48 +28,48 @@ jobs:
           exit 1
         fi
 
-    - name: Verificar se a instância existe
-      run: |
-        INSTANCE_NAME=jhonata_vm_actions
+    # - name: Verificar se a instância existe
+    #   run: |
+    #     INSTANCE_NAME=jhonata_vm_actions
 
-        # Verificar se a instância existe
-        INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=$INSTANCE_NAME" "Name=instance-state-name,Values=running" --query "Reservations[0].Instances[0].InstanceId" --output text 2>/dev/null)
+    #     # Verificar se a instância existe
+    #     INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=$INSTANCE_NAME" "Name=instance-state-name,Values=running" --query "Reservations[0].Instances[0].InstanceId" --output text 2>/dev/null)
 
-        if [ -n "$INSTANCE_ID" ]; then
-          # Obter o ID do grupo de segurança
-          SECURITY_GROUP_NAME=security_group_jhonata_actions
-          SECURITY_GROUP_ID=$(aws ec2 describe-security-groups --group-names $SECURITY_GROUP_NAME --query "SecurityGroups[0].GroupId" --output text)
+    #     if [ -n "$INSTANCE_ID" ]; then
+    #       # Obter o ID do grupo de segurança
+    #       SECURITY_GROUP_NAME=security_group_jhonata_actions
+    #       SECURITY_GROUP_ID=$(aws ec2 describe-security-groups --group-names $SECURITY_GROUP_NAME --query "SecurityGroups[0].GroupId" --output text)
 
-          if [ -n "$SECURITY_GROUP_ID" ]; then
-            # Desassociar o grupo de segurança da instância
-            aws ec2 modify-instance-attribute --instance-id $INSTANCE_ID --groups $SECURITY_GROUP_ID
-            echo "Grupo de segurança $SECURITY_GROUP_NAME desassociado da instância $INSTANCE_NAME."
-          else
-            echo "Grupo de segurança $SECURITY_GROUP_NAME não encontrado."
-          fi
+    #       if [ -n "$SECURITY_GROUP_ID" ]; then
+    #         # Desassociar o grupo de segurança da instância
+    #         aws ec2 modify-instance-attribute --instance-id $INSTANCE_ID --groups $SECURITY_GROUP_ID
+    #         echo "Grupo de segurança $SECURITY_GROUP_NAME desassociado da instância $INSTANCE_NAME."
+    #       else
+    #         echo "Grupo de segurança $SECURITY_GROUP_NAME não encontrado."
+    #       fi
 
-          # Aguardar alguns segundos para garantir que a desassociação seja concluída
-          sleep 30
+    #       # Aguardar alguns segundos para garantir que a desassociação seja concluída
+    #       sleep 30
 
-          # Terminar a instância
-          aws ec2 terminate-instances --instance-ids $INSTANCE_ID
-          echo "Instância $INSTANCE_NAME está sendo excluída."
-        else
-          echo "Instância $INSTANCE_NAME não encontrada ou não está em execução. Continuando..."
-        fi
+    #       # Terminar a instância
+    #       aws ec2 terminate-instances --instance-ids $INSTANCE_ID
+    #       echo "Instância $INSTANCE_NAME está sendo excluída."
+    #     else
+    #       echo "Instância $INSTANCE_NAME não encontrada ou não está em execução. Continuando..."
+    #     fi
 
-    - name: Excluir Key Pair
-      run: |
-        KEY_NAME=keypair_jhonata_actions
+    # - name: Excluir Key Pair
+    #   run: |
+    #     KEY_NAME=keypair_jhonata_actions
 
-        # Verificar se a key pair existe
-        if aws ec2 describe-key-pairs --key-names $KEY_NAME &> /dev/null; then
-          # Excluir a key pair
-          aws ec2 delete-key-pair --key-name $KEY_NAME
-          echo "Key pair $KEY_NAME foi excluído."
-        else
-          echo "Key pair $KEY_NAME não encontrado."
-        fi
+    #     # Verificar se a key pair existe
+    #     if aws ec2 describe-key-pairs --key-names $KEY_NAME &> /dev/null; then
+    #       # Excluir a key pair
+    #       aws ec2 delete-key-pair --key-name $KEY_NAME
+    #       echo "Key pair $KEY_NAME foi excluído."
+    #     else
+    #       echo "Key pair $KEY_NAME não encontrado."
+    #     fi
 
     - name: Excluir Security Group
       run: |
